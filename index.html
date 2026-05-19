@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CarePulse – Care Plus</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"/>
+  <style>
+    :root {
+      --blue: #1565C0;
+      --blue-light: #1976D2;
+      --blue-dark: #0D47A1;
+      --accent: #E53935;
+      --white: #FFFFFF;
+      --gray-bg: #F4F7FB;
+      --gray-text: #5A6A85;
+      --text: #0D1B2A;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--gray-bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* NAVBAR */
+    .navbar-custom {
+      background: var(--white);
+      border-bottom: 2px solid var(--blue);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(21,101,192,0.08);
+    }
+    .navbar-brand-text {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.8rem;
+      color: var(--blue-dark);
+      letter-spacing: -0.5px;
+    }
+    .navbar-brand-text span { color: var(--accent); }
+    .badge-careplus {
+      background: var(--blue);
+      color: white;
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    /* HERO */
+    .hero-section {
+      min-height: 90vh;
+      display: flex;
+      align-items: center;
+      background: linear-gradient(135deg, #0D47A1 0%, #1565C0 50%, #1976D2 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+      top: -150px; right: -100px;
+    }
+    .hero-section::after {
+      content: '';
+      position: absolute;
+      width: 350px; height: 350px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      bottom: -80px; left: 10%;
+    }
+    .hero-content { position: relative; z-index: 2; }
+    .hero-tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #fff;
+      border-radius: 30px;
+      padding: 7px 20px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-bottom: 22px;
+      letter-spacing: 0.5px;
+    }
+    .hero-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.6rem, 5vw, 4.2rem);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .hero-title span { color: #90CAF9; }
+    .hero-desc {
+      color: rgba(255,255,255,0.85);
+      font-size: 1.15rem;
+      max-width: 480px;
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+
+    /* LOGIN INSIDE HERO */
+    .hero-login-card {
+      background: rgba(255,255,255,0.97);
+      border-radius: 20px;
+      padding: 36px 32px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      position: relative; z-index: 2;
+    }
+    .hero-login-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.5rem;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .hero-login-sub {
+      color: var(--gray-text);
+      font-size: 0.92rem;
+      margin-bottom: 20px;
+    }
+    .form-control {
+      border: 1.5px solid #DDE3EE;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 0.98rem;
+      transition: border-color 0.2s;
+    }
+    .form-control:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(21,101,192,0.1); }
+    .form-label { font-weight: 600; color: var(--text); font-size: 0.92rem; margin-bottom: 6px; }
+    .btn-login {
+      background: linear-gradient(135deg, #1565C0, #1976D2);
+      color: white;
+      border: none;
+      padding: 13px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      font-family: 'Syne', sans-serif;
+      width: 100%;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .btn-login:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(21,101,192,0.3); }
+
+    /* STATS CARDS */
+    .stat-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 8px 30px rgba(21,101,192,0.1);
+      border-bottom: 3px solid var(--blue);
+      transition: transform 0.3s;
+    }
+    .stat-card:hover { transform: translateY(-4px); }
+    .stat-number {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: var(--blue-dark);
+    }
+    .stat-label { color: var(--gray-text); font-size: 0.95rem; margin-top: 4px; }
+
+    /* FEATURES */
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .section-title span { color: var(--blue); }
+    .section-sub { color: var(--gray-text); font-size: 1.05rem; max-width: 520px; }
+
+    .feature-card {
+      background: white;
+      border-radius: 20px;
+      padding: 32px 28px;
+      height: 100%;
+      border: 1.5px solid #E3EAF6;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--blue);
+      transform: scaleX(0);
+      transition: transform 0.3s;
+    }
+    .feature-card:hover { box-shadow: 0 12px 40px rgba(21,101,192,0.13); transform: translateY(-4px); }
+    .feature-card:hover::before { transform: scaleX(1); }
+    .feature-icon {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 18px;
+    }
+    .feature-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.15rem; margin-bottom: 10px; }
+    .feature-desc { color: var(--gray-text); font-size: 0.98rem; line-height: 1.6; }
+
+    /* HOW IT WORKS */
+    .how-section { background: linear-gradient(135deg, #0D47A1, #1976D2); }
+    .step-card {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 16px;
+      padding: 36px 24px;
+      text-align: center;
+      color: white;
+      height: 100%;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .step-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 3.2rem;
+      font-weight: 800;
+      color: rgba(255,255,255,0.2);
+      line-height: 1;
+      margin-bottom: 14px;
+    }
+    .step-title { font-family: 'Syne', sans-serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; }
+    .step-desc { font-size: 0.95rem; color: rgba(255,255,255,0.78); line-height: 1.6; }
+
+    /* RISK BADGE */
+    .risk-low { background: #E8F5E9; color: #2E7D32; border-radius: 20px; padding: 3px 12px; font-size: 0.82rem; font-weight: 600; }
+
+    /* ECG hero visual */
+    .hero-visual { position: relative; z-index: 2; }
+    .ecg-card {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 24px;
+      color: white;
+      margin-bottom: 16px;
+    }
+    .ecg-line {
+      height: 60px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 60'%3E%3Cpolyline points='0,30 30,30 45,10 55,50 65,10 75,30 120,30 135,10 145,50 155,10 165,30 210,30 225,10 235,50 245,10 255,30 300,30' fill='none' stroke='%2390CAF9' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+      background-size: contain;
+      margin-bottom: 12px;
+    }
+    .mini-stat { display: flex; justify-content: space-between; font-size: 0.85rem; }
+    .mini-stat-item { text-align: center; }
+    .mini-stat-item .val { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.3rem; color: #90CAF9; }
+    .mini-stat-item .lbl { color: rgba(255,255,255,0.6); font-size: 0.75rem; }
+
+    /* GAMIFICATION PREVIEW */
+    .game-preview {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    .badge-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      background: #F8FAFF;
+    }
+    .badge-icon { font-size: 1.5rem; }
+    .badge-name { font-weight: 600; font-size: 0.92rem; color: var(--text); }
+    .badge-sub { font-size: 0.8rem; color: var(--gray-text); }
+    .progress-bar-custom { height: 6px; background: #E3EAF6; border-radius: 10px; overflow: hidden; margin-top: 4px; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #1565C0, #42A5F5); border-radius: 10px; }
+
+    /* PULSE ANIMATION */
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 1; }
+      70% { transform: scale(1.1); opacity: 0; }
+      100% { transform: scale(0.95); opacity: 0; }
+    }
+    .pulse-dot {
+      width: 12px; height: 12px;
+      background: #4CAF50;
+      border-radius: 50%;
+      display: inline-block;
+      position: relative;
+    }
+    .pulse-dot::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      background: rgba(76,175,80,0.4);
+      animation: pulse-ring 1.5s infinite;
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--text);
+      color: rgba(255,255,255,0.6);
+      padding: 32px 0;
+      text-align: center;
+      font-size: 0.95rem;
+    }
+    footer strong { color: white; }
+
+    /* SCROLL REVEAL */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .revealed { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar-custom">
+  <div class="container d-flex justify-content-between align-items-center gap-3">
+    <a href="index.html" style="text-decoration:none; flex-shrink:0;">
+      <span class="navbar-brand-text">Care<span>Pulse</span><span class="badge-careplus">Care Plus</span></span>
+    </a>
+    <div class="d-flex align-items-center gap-2 ms-auto">
+      <input type="text" id="loginInput" placeholder="E-mail ou CPF" class="form-control form-control-sm d-none d-md-block" style="width:190px; border-radius:8px; font-size:0.88rem;"/>
+      <input type="password" id="passInput" placeholder="Senha" class="form-control form-control-sm d-none d-md-block" style="width:120px; border-radius:8px; font-size:0.88rem;"/>
+      <button onclick="doLogin()" class="btn btn-sm d-none d-md-block" style="background:linear-gradient(135deg,#1565C0,#1976D2);color:white;border:none;border-radius:8px;font-weight:700;font-family:'Syne',sans-serif;padding:7px 18px;font-size:0.88rem;white-space:nowrap;">Entrar no sistema →</button>
+      <div class="pulse-dot ms-2 d-none d-lg-block"></div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO COM LOGIN -->
+<section class="hero-section">
+  <div class="container py-5">
+    <div class="row align-items-center g-5">
+
+      <!-- TEXTO -->
+      <div class="col-lg-6 hero-content">
+        <div class="hero-tag"><i class="bi bi-heart-pulse-fill me-2"></i>Saúde inteligente</div>
+        <h1 class="hero-title">Reduza o<br/><span>no-show</span><br/>nas consultas.</h1>
+        <p class="hero-desc">CarePulse usa inteligência de dados, gamificação e notificações inteligentes para garantir que cada consulta agendada aconteça.</p>
+      </div>
+
+
+
+      <!-- MONITOR + RANKING -->
+      <div class="col-lg-6 hero-visual">
+        <div class="ecg-card">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span style="font-family:'Syne',sans-serif; font-weight:700; font-size:0.95rem;">Monitor de consultas em tempo real</span>
+            <span class="risk-low">● Online</span>
+          </div>
+          <div class="ecg-line"></div>
+          <div class="mini-stat">
+            <div class="mini-stat-item"><div class="val">87%</div><div class="lbl">Presença hoje</div></div>
+            <div class="mini-stat-item"><div class="val">34</div><div class="lbl">Consultas ativas</div></div>
+            <div class="mini-stat-item"><div class="val">4</div><div class="lbl">Risco alto</div></div>
+            <div class="mini-stat-item"><div class="val">12</div><div class="lbl">Lembretes enviados</div></div>
+          </div>
+        </div>
+        <div class="game-preview">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span style="font-weight:700; font-family:'Syne',sans-serif; font-size:0.9rem; color:var(--text);">🏆 Ranking de Comprometimento</span>
+            <span class="risk-low">Top 3</span>
+          </div>
+          <div class="badge-item">
+            <div class="badge-icon">🥇</div>
+            <div>
+              <div class="badge-name">Maria S. — 1.240 pts</div>
+              <div class="badge-sub">12 consultas consecutivas ✓</div>
+              <div class="progress-bar-custom"><div class="progress-fill" style="width:95%"></div></div>
+            </div>
+          </div>
+          <div class="badge-item">
+            <div class="badge-icon">🥈</div>
+            <div>
+              <div class="badge-name">João P. — 980 pts</div>
+              <div class="badge-sub">8 consultas consecutivas ✓</div>
+              <div class="progress-bar-custom"><div class="progress-fill" style="width:75%"></div></div>
+            </div>
+          </div>
+          <div class="badge-item">
+            <div class="badge-icon">🥉</div>
+            <div>
+              <div class="badge-name">Ana R. — 760 pts</div>
+              <div class="badge-sub">6 consultas consecutivas ✓</div>
+              <div class="progress-bar-custom"><div class="progress-fill" style="width:58%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="py-5 bg-white">
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-6 col-md-3 reveal">
+        <div class="stat-card">
+          <div class="stat-number">30%</div>
+          <div class="stat-label">Taxa média de no-show no Brasil</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 reveal">
+        <div class="stat-card">
+          <div class="stat-number">-62%</div>
+          <div class="stat-label">Redução com lembretes inteligentes</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 reveal">
+        <div class="stat-card">
+          <div class="stat-number">600k</div>
+          <div class="stat-label">Beneficiários Care Plus</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3 reveal">
+        <div class="stat-card">
+          <div class="stat-number">8</div>
+          <div class="stat-label">Clínicas integradas ao sistema</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="py-5 mt-2 reveal" id="features">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="section-title">Como o <span>CarePulse</span> funciona</h2>
+      <p class="section-sub mx-auto mt-2">Tecnologia e empatia juntas para mudar o comportamento dos pacientes.</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4 reveal">
+        <div class="feature-card">
+          <div class="feature-icon">🔔</div>
+          <div class="feature-title">Notificações Inteligentes</div>
+          <div class="feature-desc">Lembretes personalizados via WhatsApp, SMS e e-mail com base no perfil do paciente, distância e condições climáticas em tempo real.</div>
+        </div>
+      </div>
+      <div class="col-md-4 reveal">
+        <div class="feature-card">
+          <div class="feature-icon">🎮</div>
+          <div class="feature-title">Gamificação de Saúde</div>
+          <div class="feature-desc">Pontos, badges e ranking por comparecimento. Pacientes que cancelam com antecedência também ganham recompensas.</div>
+        </div>
+      </div>
+      <div class="col-md-4 reveal">
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <div class="feature-title">Previsão de Risco de No-Show</div>
+          <div class="feature-desc">Algoritmo que analisa histórico, clima, trânsito e horário para calcular o risco e acionar ações preventivas automáticas.</div>
+        </div>
+      </div>
+      <div class="col-md-4 reveal">
+        <div class="feature-card">
+          <div class="feature-icon">📅</div>
+          <div class="feature-title">Reagendamento com 1 Clique</div>
+          <div class="feature-desc">Interface fluida para reagendar sem burocracia. O sistema sugere horários alternativos baseados na disponibilidade e perfil do paciente.</div>
+        </div>
+      </div>
+      <div class="col-md-4 reveal">
+        <div class="feature-card">
+          <div class="feature-icon">🗺️</div>
+          <div class="feature-title">Contexto Urbano</div>
+          <div class="feature-desc">Integração com dados de trânsito e clima de São Paulo. Alerta antecipado em dias de chuva ou congestionamento em regiões como Itaim Bibi e Vila Olímpia.</div>
+        </div>
+      </div>
+      <div class="col-md-4 reveal">
+        <div class="feature-card">
+          <div class="feature-icon">💊</div>
+          <div class="feature-title">Saúde Preventiva</div>
+          <div class="feature-desc">Fila de espera inteligente: quando há risco de no-show, o sistema aciona automaticamente pacientes na lista de espera para preencher a vaga.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JORNADA DO PACIENTE -->
+<section class="how-section py-5 reveal">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="section-title" style="color:white; font-size:2.2rem;">Jornada do <span style="color:#90CAF9;">Paciente</span></h2>
+    </div>
+    <div class="row g-4">
+      <div class="col-6 col-md-3">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <div class="step-title">Agendamento</div>
+          <div class="step-desc">Paciente agenda pela plataforma. Sistema calcula risco inicial de no-show.</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <div class="step-title">Lembretes Ativos</div>
+          <div class="step-desc">Notificações inteligentes são enviadas 7 dias, 1 dia e 2h antes da consulta.</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <div class="step-title">Comparecimento</div>
+          <div class="step-desc">Paciente confirma presença e acumula pontos. Badge desbloqueado automaticamente.</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="step-card">
+          <div class="step-num">04</div>
+          <div class="step-title">Recompensa</div>
+          <div class="step-desc">Pontos convertidos em benefícios: descontos, prioridade de agendamento e muito mais.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <strong>CarePulse</strong> — Solução desenvolvida para o Challenge FIAP × Care Plus<br/>
+    <span>Felipe Henrique Cutrim Barbosa — RM567597 | ADS 1º Ano | 2025</span>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('revealed'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  function doLogin() {
+    const u = document.getElementById('loginInput').value;
+    const p = document.getElementById('passInput').value;
+    if (!u || !p) { alert('Preencha e-mail e senha para continuar.'); return; }
+    window.location.href = 'dashboard.html';
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+</script>
+</body>
+</html>

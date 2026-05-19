@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard – CarePulse</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"/>
+  <style>
+    :root {
+      --blue: #1565C0;
+      --blue-light: #1976D2;
+      --blue-dark: #0D47A1;
+      --accent: #E53935;
+      --white: #FFFFFF;
+      --gray-bg: #F4F7FB;
+      --gray-text: #5A6A85;
+      --text: #0D1B2A;
+      --sidebar-w: 240px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'DM Sans',sans-serif; background:var(--gray-bg); color:var(--text); }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: linear-gradient(180deg, #0D47A1 0%, #1565C0 100%);
+      position: fixed; top:0; left:0; z-index:50;
+      display: flex; flex-direction: column;
+      transition: transform 0.3s;
+    }
+    .sidebar-logo {
+      padding: 24px 20px 16px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: white;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      margin-bottom: 8px;
+    }
+    .sidebar-logo span { color: #90CAF9; }
+    .sidebar-nav a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 20px;
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 500;
+      border-radius: 0;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
+    .sidebar-nav a:hover, .sidebar-nav a.active {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border-left-color: #90CAF9;
+    }
+    .sidebar-nav a i { font-size: 1.1rem; width:20px; text-align:center; }
+    .sidebar-user {
+      margin-top: auto;
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.8);
+      font-size: 0.85rem;
+    }
+    .sidebar-avatar {
+      width: 36px; height:36px;
+      background: #90CAF9;
+      border-radius: 50%;
+      display: flex; align-items:center; justify-content:center;
+      font-family: 'Syne',sans-serif; font-weight:800;
+      color: var(--blue-dark);
+      font-size: 0.9rem;
+    }
+
+    /* MAIN */
+    .main-content {
+      margin-left: var(--sidebar-w);
+      padding: 28px;
+      min-height: 100vh;
+    }
+    .topbar {
+      display: flex; justify-content: space-between; align-items:center;
+      margin-bottom: 28px;
+      flex-wrap: wrap; gap:12px;
+    }
+    .page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:1.6rem; }
+    .page-title span { color:var(--blue); }
+    .topbar-right { display:flex; gap:10px; align-items:center; }
+
+    /* SUMMARY CARDS */
+    .summary-card {
+      background: white;
+      border-radius: 16px;
+      padding: 22px 20px;
+      height: 100%;
+      border: 1.5px solid #E3EAF6;
+      transition: transform 0.2s;
+    }
+    .summary-card:hover { transform:translateY(-2px); }
+    .summary-icon {
+      width:46px; height:46px;
+      border-radius: 12px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.3rem; margin-bottom:14px;
+    }
+    .summary-value { font-family:'Syne',sans-serif; font-size:2rem; font-weight:800; line-height:1; }
+    .summary-label { color:var(--gray-text); font-size:0.85rem; margin-top:4px; }
+    .summary-change { font-size:0.78rem; font-weight:600; margin-top:6px; }
+    .change-up { color:#2E7D32; }
+    .change-down { color:#C62828; }
+
+    /* POINTS WIDGET */
+    .points-card {
+      background: linear-gradient(135deg, #1565C0, #1976D2);
+      border-radius: 20px;
+      padding: 28px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .points-card::before {
+      content:'';
+      position:absolute; top:-30px; right:-30px;
+      width:120px; height:120px;
+      border-radius:50%;
+      background:rgba(255,255,255,0.08);
+    }
+    .points-val { font-family:'Syne',sans-serif; font-size:3rem; font-weight:800; line-height:1; }
+    .points-lbl { color:rgba(255,255,255,0.75); font-size:0.88rem; margin-top:4px; }
+    .streak-badge {
+      background:rgba(255,255,255,0.15);
+      border:1px solid rgba(255,255,255,0.25);
+      border-radius:30px;
+      padding:5px 14px;
+      font-size:0.82rem;
+      display:inline-block;
+      margin-top:12px;
+    }
+    .progress-points { margin-top:16px; }
+    .progress-bar-pts {
+      height:8px; background:rgba(255,255,255,0.2);
+      border-radius:10px; overflow:hidden;
+    }
+    .progress-fill-pts {
+      height:100%;
+      background:linear-gradient(90deg,#90CAF9,white);
+      border-radius:10px;
+      width:68%;
+      transition:width 1s ease;
+    }
+
+    /* APPOINTMENTS TABLE */
+    .card-panel {
+      background:white;
+      border-radius:16px;
+      border:1.5px solid #E3EAF6;
+      overflow:hidden;
+    }
+    .card-panel-header {
+      padding:18px 22px;
+      border-bottom:1.5px solid #E3EAF6;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .card-panel-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; }
+    .table-custom { margin:0; }
+    .table-custom th {
+      font-size:0.8rem; font-weight:600;
+      color:var(--gray-text); text-transform:uppercase;
+      letter-spacing:0.5px;
+      padding:12px 22px;
+      background:#FAFBFE;
+      border-color:#E3EAF6;
+    }
+    .table-custom td {
+      padding:14px 22px;
+      border-color:#E3EAF6;
+      vertical-align:middle;
+      font-size:0.92rem;
+    }
+    .doc-avatar {
+      width:36px; height:36px;
+      border-radius:50%;
+      background:linear-gradient(135deg,#E3F2FD,#BBDEFB);
+      display:flex; align-items:center; justify-content:center;
+      font-size:0.85rem; font-weight:700; color:var(--blue-dark);
+      margin-right:10px; flex-shrink:0;
+    }
+
+    /* RISK BADGES */
+    .risk-badge {
+      padding:4px 12px; border-radius:20px;
+      font-size:0.78rem; font-weight:600;
+    }
+    .risk-low  { background:#E8F5E9; color:#2E7D32; }
+    .risk-mid  { background:#FFF8E1; color:#F57F17; }
+    .risk-high { background:#FFEBEE; color:#C62828; }
+
+    .status-badge {
+      padding:4px 12px; border-radius:20px;
+      font-size:0.78rem; font-weight:600;
+    }
+    .status-confirmed { background:#E3F2FD; color:#1565C0; }
+    .status-pending   { background:#FFF8E1; color:#F57F17; }
+    .status-done      { background:#E8F5E9; color:#2E7D32; }
+
+    /* ACTION BUTTONS */
+    .btn-action {
+      border:none; background:transparent;
+      color:var(--blue); font-size:0.85rem;
+      font-weight:600; cursor:pointer; padding:6px 10px;
+      border-radius:8px; transition:background 0.2s;
+    }
+    .btn-action:hover { background:#E3F2FD; }
+    .btn-cancel-action {
+      border:none; background:transparent;
+      color:#C62828; font-size:0.85rem;
+      font-weight:600; cursor:pointer; padding:6px 10px;
+      border-radius:8px; transition:background 0.2s;
+    }
+    .btn-cancel-action:hover { background:#FFEBEE; }
+
+    /* BADGES */
+    .badge-grid { display:flex; gap:12px; flex-wrap:wrap; padding:20px; }
+    .badge-chip {
+      display:flex; flex-direction:column; align-items:center;
+      gap:6px; padding:16px 14px; border-radius:14px;
+      background:#FAFBFE; border:1.5px solid #E3EAF6;
+      text-align:center; min-width:90px;
+      transition:all 0.2s;
+    }
+    .badge-chip:hover { transform:scale(1.05); box-shadow:0 4px 16px rgba(21,101,192,0.12); }
+    .badge-chip.earned { border-color:#90CAF9; background:#E3F2FD; }
+    .badge-chip.locked { opacity:0.45; filter:grayscale(1); }
+    .badge-emoji { font-size:1.8rem; }
+    .badge-chip-name { font-size:0.72rem; font-weight:700; color:var(--text); }
+    .badge-chip-pts { font-size:0.68rem; color:var(--gray-text); }
+
+    /* NOTIFICATION TOAST */
+    .toast-container { position:fixed; top:16px; right:16px; z-index:200; }
+    .notif-toast {
+      background:white;
+      border-left:4px solid var(--blue);
+      border-radius:12px;
+      padding:14px 18px;
+      margin-bottom:10px;
+      box-shadow:0 8px 24px rgba(0,0,0,0.12);
+      display:flex; align-items:flex-start; gap:12px;
+      animation:slideIn 0.4s ease;
+      max-width:320px;
+    }
+    @keyframes slideIn { from{transform:translateX(100px);opacity:0} to{transform:translateX(0);opacity:1} }
+    .notif-title { font-weight:700; font-size:0.88rem; }
+    .notif-body { font-size:0.8rem; color:var(--gray-text); }
+
+    /* MOBILE */
+    @media(max-width:768px){
+      .sidebar { transform:translateX(-100%); }
+      .sidebar.open { transform:translateX(0); }
+      .main-content { margin-left:0; padding:16px; }
+      .mobile-toggle { display:block !important; }
+    }
+    .mobile-toggle { display:none; }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">Care<span>Pulse</span></div>
+  <nav class="sidebar-nav">
+    <a href="dashboard.html" class="active"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+    <a href="agendamento.html"><i class="bi bi-calendar-plus-fill"></i> Minhas Consultas</a>
+    <a href="notificacoes.html"><i class="bi bi-bell-fill"></i> Notificações <span class="badge bg-danger ms-auto" style="font-size:0.65rem;">3</span></a>
+    <a href="#"><i class="bi bi-trophy-fill"></i> Recompensas</a>
+    <a href="#"><i class="bi bi-bar-chart-line-fill"></i> Histórico</a>
+    <a href="#"><i class="bi bi-gear-fill"></i> Configurações</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="d-flex align-items-center gap-2">
+      <div class="sidebar-avatar">FH</div>
+      <div>
+        <div style="font-weight:600; color:white; font-size:0.88rem;">Felipe Henrique</div>
+        <div style="font-size:0.75rem;">Plano Premium</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- TOAST NOTIFICATIONS -->
+<div class="toast-container" id="toastArea"></div>
+
+<!-- MAIN -->
+<main class="main-content">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <button class="btn btn-sm btn-outline-secondary mobile-toggle me-2" onclick="document.getElementById('sidebar').classList.toggle('open')">
+        <i class="bi bi-list"></i>
+      </button>
+      <h1 class="page-title d-inline">Olá, <span>Felipe!</span> 👋</h1>
+      <div class="text-muted mt-1" style="font-size:0.88rem;"><i class="bi bi-geo-alt-fill me-1" style="color:var(--blue)"></i>São Paulo – Itaim Bibi | <i class="bi bi-cloud-drizzle-fill me-1" style="color:#42A5F5;"></i>Chuva prevista às 17h</div>
+    </div>
+    <div class="topbar-right">
+      <a href="notificacoes.html" class="btn btn-sm btn-light position-relative rounded-pill px-3">
+        <i class="bi bi-bell-fill me-1" style="color:var(--blue)"></i>Alertas
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.6rem;">3</span>
+      </a>
+      <a href="index.html" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Sair</a>
+    </div>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="summary-card">
+        <div class="summary-icon" style="background:#E3F2FD;">📅</div>
+        <div class="summary-value" style="color:var(--blue)">3</div>
+        <div class="summary-label">Consultas agendadas</div>
+        <div class="summary-change change-up"><i class="bi bi-arrow-up"></i> Próxima em 2 dias</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="summary-card">
+        <div class="summary-icon" style="background:#E8F5E9;">✅</div>
+        <div class="summary-value" style="color:#2E7D32">12</div>
+        <div class="summary-label">Consultas comparecidas</div>
+        <div class="summary-change change-up"><i class="bi bi-arrow-up"></i> 100% no último mês</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="summary-card">
+        <div class="summary-icon" style="background:#FFF8E1;">🔥</div>
+        <div class="summary-value" style="color:#F57F17">6</div>
+        <div class="summary-label">Streak atual</div>
+        <div class="summary-change change-up"><i class="bi bi-arrow-up"></i> Recorde pessoal!</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="summary-card">
+        <div class="summary-icon" style="background:#F3E5F5;">⭐</div>
+        <div class="summary-value" style="color:#7B1FA2">840</div>
+        <div class="summary-label">Pontos CarePulse</div>
+        <div class="summary-change change-up"><i class="bi bi-arrow-up"></i> +120 esta semana</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <!-- POINTS CARD -->
+    <div class="col-md-4">
+      <div class="points-card h-100">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <span style="font-size:0.85rem; color:rgba(255,255,255,0.7); font-weight:500;">Seus pontos</span>
+          <span style="font-size:0.8rem; background:rgba(255,255,255,0.15); padding:3px 10px; border-radius:20px; color:white;">Nível Ouro 🥇</span>
+        </div>
+        <div class="points-val">840</div>
+        <div class="points-lbl">CarePulse Points</div>
+        <div class="streak-badge">🔥 Streak de 6 consultas</div>
+        <div class="progress-points">
+          <div class="d-flex justify-content-between mb-1" style="font-size:0.78rem; color:rgba(255,255,255,0.7);">
+            <span>Progresso para Platina</span>
+            <span>840/1200 pts</span>
+          </div>
+          <div class="progress-bar-pts"><div class="progress-fill-pts"></div></div>
+        </div>
+        <div class="mt-3 d-flex gap-2">
+          <button class="btn btn-sm" style="background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.3);border-radius:8px;font-size:0.82rem;" onclick="showToast('🎁','Recompensas','Em breve: troque seus pontos por benefícios exclusivos!')">Ver recompensas</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RISK ALERT -->
+    <div class="col-md-8">
+      <div class="card-panel h-100">
+        <div class="card-panel-header">
+          <span class="card-panel-title">⚠️ Alerta de Risco — Contexto Urbano</span>
+          <span class="risk-badge risk-high">Atenção necessária</span>
+        </div>
+        <div class="p-4">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div style="background:#FFF8E1;border-radius:12px;padding:16px;text-align:center;">
+                <div style="font-size:2rem;">🌧️</div>
+                <div style="font-weight:700;font-size:0.9rem;color:#F57F17;margin-top:6px;">Chuva às 17h</div>
+                <div style="font-size:0.78rem;color:var(--gray-text);">Previsão para Itaim Bibi</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div style="background:#FFEBEE;border-radius:12px;padding:16px;text-align:center;">
+                <div style="font-size:2rem;">🚗</div>
+                <div style="font-weight:700;font-size:0.9rem;color:#C62828;margin-top:6px;">Trânsito crítico</div>
+                <div style="font-size:0.78rem;color:var(--gray-text);">Av. Faria Lima — 47 min</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div style="background:#E8F5E9;border-radius:12px;padding:16px;text-align:center;">
+                <div style="font-size:2rem;">💡</div>
+                <div style="font-weight:700;font-size:0.9rem;color:#2E7D32;margin-top:6px;">Sugestão</div>
+                <div style="font-size:0.78rem;color:var(--gray-text);">Sair às 16h ou reagendar</div>
+              </div>
+            </div>
+          </div>
+          <div class="alert mt-3 mb-0" style="background:#E3F2FD;border:none;border-radius:12px;color:var(--blue-dark);font-size:0.88rem;">
+            <i class="bi bi-lightbulb-fill me-2"></i>
+            Sua consulta de amanhã às 18h tem <strong>risco MÉDIO de no-show</strong> devido ao trânsito histórico na sexta-feira. Recomendamos confirmar presença ou <a href="agendamento.html" style="color:var(--blue);font-weight:700;">reagendar agora</a>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APPOINTMENTS -->
+  <div class="card-panel mb-4">
+    <div class="card-panel-header">
+      <span class="card-panel-title">📋 Próximas Consultas</span>
+      <a href="agendamento.html" class="btn btn-sm" style="background:var(--blue);color:white;border-radius:8px;font-size:0.82rem;font-weight:600;">+ Nova Consulta</a>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover table-custom mb-0">
+        <thead>
+          <tr>
+            <th>Médico / Especialidade</th>
+            <th>Data e Hora</th>
+            <th>Clínica</th>
+            <th>Risco No-Show</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="appointmentsTable">
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="doc-avatar">CA</div>
+                <div>
+                  <div style="font-weight:600;">Dr. Carlos Almeida</div>
+                  <div style="font-size:0.8rem;color:var(--gray-text);">Cardiologia</div>
+                </div>
+              </div>
+            </td>
+            <td><div style="font-weight:600;">21/05/2025</div><div style="font-size:0.8rem;color:var(--gray-text);">09:00</div></td>
+            <td><div>Itaim Bibi</div><div style="font-size:0.78rem;color:var(--gray-text);">R. Funchal, 160</div></td>
+            <td><span class="risk-badge risk-low">Baixo</span></td>
+            <td><span class="status-badge status-confirmed">Confirmada</span></td>
+            <td>
+              <button class="btn-action" onclick="confirmConsulta(this,'Dr. Carlos Almeida')"><i class="bi bi-check-circle me-1"></i>Confirmar</button>
+              <button class="btn-cancel-action" onclick="reagendarConsulta()"><i class="bi bi-arrow-repeat me-1"></i>Reagendar</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="doc-avatar">MS</div>
+                <div>
+                  <div style="font-weight:600;">Dra. Marina Santos</div>
+                  <div style="font-size:0.8rem;color:var(--gray-text);">Dermatologia</div>
+                </div>
+              </div>
+            </td>
+            <td><div style="font-weight:600;">23/05/2025</div><div style="font-size:0.8rem;color:var(--gray-text);">18:00 – Sexta</div></td>
+            <td><div>Vila Olímpia</div><div style="font-size:0.78rem;color:var(--gray-text);">Av. Presidente Juscelino</div></td>
+            <td><span class="risk-badge risk-mid">Médio 🌧️</span></td>
+            <td><span class="status-badge status-pending">Pendente</span></td>
+            <td>
+              <button class="btn-action" onclick="confirmConsulta(this,'Dra. Marina Santos')"><i class="bi bi-check-circle me-1"></i>Confirmar</button>
+              <button class="btn-cancel-action" onclick="reagendarConsulta()"><i class="bi bi-arrow-repeat me-1"></i>Reagendar</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="doc-avatar">RP</div>
+                <div>
+                  <div style="font-weight:600;">Dr. Ricardo Pinto</div>
+                  <div style="font-size:0.8rem;color:var(--gray-text);">Clínico Geral</div>
+                </div>
+              </div>
+            </td>
+            <td><div style="font-weight:600;">30/05/2025</div><div style="font-size:0.8rem;color:var(--gray-text);">10:30</div></td>
+            <td><div>Moema</div><div style="font-size:0.78rem;color:var(--gray-text);">Av. Ibirapuera, 2332</div></td>
+            <td><span class="risk-badge risk-high">Alto ⚠️</span></td>
+            <td><span class="status-badge status-pending">Pendente</span></td>
+            <td>
+              <button class="btn-action" onclick="confirmConsulta(this,'Dr. Ricardo Pinto')"><i class="bi bi-check-circle me-1"></i>Confirmar</button>
+              <button class="btn-cancel-action" onclick="reagendarConsulta()"><i class="bi bi-arrow-repeat me-1"></i>Reagendar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- BADGES -->
+  <div class="card-panel mb-4">
+    <div class="card-panel-header">
+      <span class="card-panel-title">🏅 Seus Badges</span>
+      <span style="font-size:0.82rem; color:var(--gray-text);">4 de 10 conquistados</span>
+    </div>
+    <div class="badge-grid">
+      <div class="badge-chip earned">
+        <div class="badge-emoji">🎯</div>
+        <div class="badge-chip-name">Pontual</div>
+        <div class="badge-chip-pts">1ª consulta</div>
+      </div>
+      <div class="badge-chip earned">
+        <div class="badge-emoji">🔥</div>
+        <div class="badge-chip-name">Em Chamas</div>
+        <div class="badge-chip-pts">5 seguidas</div>
+      </div>
+      <div class="badge-chip earned">
+        <div class="badge-emoji">💎</div>
+        <div class="badge-chip-name">Diamante</div>
+        <div class="badge-chip-pts">100 pts</div>
+      </div>
+      <div class="badge-chip earned">
+        <div class="badge-emoji">🌟</div>
+        <div class="badge-chip-name">Responsável</div>
+        <div class="badge-chip-pts">Cancelou com 48h</div>
+      </div>
+      <div class="badge-chip locked">
+        <div class="badge-emoji">🏆</div>
+        <div class="badge-chip-name">Campeão</div>
+        <div class="badge-chip-pts">10 seguidas</div>
+      </div>
+      <div class="badge-chip locked">
+        <div class="badge-emoji">🚀</div>
+        <div class="badge-chip-name">Maratonista</div>
+        <div class="badge-chip-pts">500 pts</div>
+      </div>
+      <div class="badge-chip locked">
+        <div class="badge-emoji">❤️</div>
+        <div class="badge-chip-name">Saúde em Dia</div>
+        <div class="badge-chip-pts">3 especialidades</div>
+      </div>
+      <div class="badge-chip locked">
+        <div class="badge-emoji">👑</div>
+        <div class="badge-chip-name">Rei da Saúde</div>
+        <div class="badge-chip-pts">Nível Platina</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- REAGENDAR MODAL -->
+<div class="modal fade" id="reagendarModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:20px;border:none;">
+      <div class="modal-header" style="border-bottom:1.5px solid #E3EAF6;">
+        <h5 class="modal-title" style="font-family:'Syne',sans-serif;font-weight:800;">Reagendar Consulta</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="text-muted mb-3" style="font-size:0.9rem;">Escolha um novo horário disponível:</p>
+        <div id="slotGrid" class="row g-2"></div>
+        <div class="alert mt-3" style="background:#E8F5E9;border:none;border-radius:12px;color:#2E7D32;font-size:0.85rem;">
+          <i class="bi bi-star-fill me-2"></i><strong>+50 pts</strong> por cancelar/reagendar com mais de 24h de antecedência!
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // TOAST
+  function showToast(icon, title, body) {
+    const area = document.getElementById('toastArea');
+    const t = document.createElement('div');
+    t.className = 'notif-toast';
+    t.innerHTML = `<div style="font-size:1.4rem;">${icon}</div><div><div class="notif-title">${title}</div><div class="notif-body">${body}</div></div>`;
+    area.appendChild(t);
+    setTimeout(() => t.remove(), 5000);
+  }
+
+  // CONFIRM
+  function confirmConsulta(btn, name) {
+    btn.innerHTML = '<i class="bi bi-check-circle-fill me-1" style="color:#2E7D32"></i>Confirmada!';
+    btn.disabled = true;
+    showToast('✅', 'Presença confirmada!', `Obrigado por confirmar a consulta com ${name}. +20 pts adicionados!`);
+  }
+
+  // REAGENDAR
+  const slots = ['Seg 21/05 – 08:00','Seg 21/05 – 10:30','Ter 22/05 – 09:00','Ter 22/05 – 14:00','Qua 23/05 – 08:30','Qua 23/05 – 16:00','Qui 24/05 – 11:00'];
+  function reagendarConsulta() {
+    const grid = document.getElementById('slotGrid');
+    grid.innerHTML = '';
+    slots.forEach(s => {
+      const col = document.createElement('div');
+      col.className = 'col-6';
+      col.innerHTML = `<button onclick="selectSlot(this,'${s}')" class="btn btn-sm w-100" style="border:1.5px solid #E3EAF6;border-radius:10px;padding:10px;font-size:0.82rem;font-weight:600;color:var(--text);background:white;">${s}</button>`;
+      grid.appendChild(col);
+    });
+    new bootstrap.Modal(document.getElementById('reagendarModal')).show();
+  }
+  function selectSlot(btn, slot) {
+    document.querySelectorAll('#slotGrid button').forEach(b => b.style.background='white');
+    btn.style.background='#E3F2FD'; btn.style.borderColor='var(--blue)';
+    setTimeout(() => {
+      bootstrap.Modal.getInstance(document.getElementById('reagendarModal')).hide();
+      showToast('📅','Reagendado!',`Consulta remarcada para ${slot}. +50 pts por reagendar com antecedência!`);
+    }, 600);
+  }
+
+  // INITIAL TOASTS
+  setTimeout(() => showToast('🌧️','Alerta climático','Chuva prevista para amanhã às 17h. Planeje sua saída!'), 1500);
+  setTimeout(() => showToast('🔔','Lembrete','Consulta com Dra. Marina Santos em 2 dias. Confirme sua presença!'), 3000);
+</script>
+</body>
+</html>

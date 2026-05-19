@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Agendar Consulta – CarePulse</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"/>
+  <style>
+    :root {
+      --blue:#1565C0; --blue-light:#1976D2; --blue-dark:#0D47A1;
+      --white:#FFFFFF; --gray-bg:#F4F7FB; --gray-text:#5A6A85; --text:#0D1B2A;
+      --sidebar-w:240px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'DM Sans',sans-serif; background:var(--gray-bg); color:var(--text); }
+
+    /* SIDEBAR */
+    .sidebar {
+      width:var(--sidebar-w); min-height:100vh;
+      background:linear-gradient(180deg,#0D47A1,#1565C0);
+      position:fixed; top:0; left:0; z-index:50;
+      display:flex; flex-direction:column;
+    }
+    .sidebar-logo { padding:24px 20px 16px; font-family:'Syne',sans-serif; font-weight:800; font-size:1.25rem; color:white; border-bottom:1px solid rgba(255,255,255,0.15); margin-bottom:8px; }
+    .sidebar-logo span { color:#90CAF9; }
+    .sidebar-nav a { display:flex; align-items:center; gap:12px; padding:13px 20px; color:rgba(255,255,255,0.75); text-decoration:none; font-size:0.92rem; font-weight:500; transition:all 0.2s; border-left:3px solid transparent; }
+    .sidebar-nav a:hover, .sidebar-nav a.active { background:rgba(255,255,255,0.1); color:white; border-left-color:#90CAF9; }
+    .sidebar-nav a i { font-size:1.1rem; width:20px; text-align:center; }
+    .sidebar-user { margin-top:auto; padding:16px 20px; border-top:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.8); font-size:0.85rem; }
+    .sidebar-avatar { width:36px; height:36px; background:#90CAF9; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-weight:800; color:var(--blue-dark); font-size:0.9rem; }
+
+    /* MAIN */
+    .main-content { margin-left:var(--sidebar-w); padding:28px; }
+    .page-title { font-family:'Syne',sans-serif; font-weight:800; font-size:1.6rem; }
+    .page-title span { color:var(--blue); }
+
+    /* STEP WIZARD */
+    .step-bar {
+      display:flex; gap:0; margin-bottom:32px;
+      background:white; border-radius:14px; padding:20px 24px;
+      border:1.5px solid #E3EAF6;
+    }
+    .step-item { flex:1; display:flex; flex-direction:column; align-items:center; position:relative; }
+    .step-item:not(:last-child)::after {
+      content:''; position:absolute; top:16px; left:50%; width:100%;
+      height:2px; background:#E3EAF6; z-index:0;
+    }
+    .step-item.done::after, .step-item.active::after { background:var(--blue); }
+    .step-circle {
+      width:32px; height:32px; border-radius:50%;
+      background:#E3EAF6; color:var(--gray-text);
+      display:flex; align-items:center; justify-content:center;
+      font-weight:700; font-size:0.85rem; position:relative; z-index:1;
+      transition:all 0.3s;
+    }
+    .step-item.active .step-circle { background:var(--blue); color:white; }
+    .step-item.done .step-circle { background:#2E7D32; color:white; }
+    .step-label { font-size:0.75rem; color:var(--gray-text); margin-top:6px; text-align:center; font-weight:500; }
+    .step-item.active .step-label { color:var(--blue); font-weight:700; }
+
+    /* CARDS */
+    .card-panel { background:white; border-radius:16px; border:1.5px solid #E3EAF6; overflow:hidden; margin-bottom:20px; }
+    .card-panel-header { padding:18px 22px; border-bottom:1.5px solid #E3EAF6; display:flex; justify-content:space-between; align-items:center; }
+    .card-panel-title { font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; }
+    .card-body-pad { padding:24px; }
+
+    /* SPECIALTY GRID */
+    .spec-btn {
+      border:1.5px solid #E3EAF6; border-radius:12px;
+      padding:18px 14px; text-align:center; cursor:pointer;
+      transition:all 0.2s; background:white; width:100%;
+      font-family:'DM Sans',sans-serif;
+    }
+    .spec-btn:hover { border-color:var(--blue); background:#E3F2FD; }
+    .spec-btn.selected { border-color:var(--blue); background:#E3F2FD; box-shadow:0 0 0 2px rgba(21,101,192,0.15); }
+    .spec-icon { font-size:2rem; display:block; margin-bottom:8px; }
+    .spec-name { font-weight:700; font-size:0.88rem; color:var(--text); }
+    .spec-sub { font-size:0.75rem; color:var(--gray-text); }
+
+    /* DOCTOR CARDS */
+    .doc-card {
+      border:1.5px solid #E3EAF6; border-radius:14px; padding:18px;
+      cursor:pointer; transition:all 0.2s; background:white;
+    }
+    .doc-card:hover, .doc-card.selected { border-color:var(--blue); box-shadow:0 4px 16px rgba(21,101,192,0.12); }
+    .doc-card.selected { background:#E3F2FD; }
+    .doc-big-avatar { width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,#E3F2FD,#BBDEFB); display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-weight:800; color:var(--blue-dark); font-size:1rem; }
+    .star-rating { color:#FBC02D; font-size:0.82rem; }
+    .avail-chip { background:#E8F5E9; color:#2E7D32; border-radius:20px; padding:3px 10px; font-size:0.75rem; font-weight:600; }
+
+    /* TIME SLOTS */
+    .slot-btn {
+      border:1.5px solid #E3EAF6; border-radius:10px; padding:10px;
+      text-align:center; cursor:pointer; transition:all 0.2s;
+      background:white; font-weight:600; font-size:0.85rem; color:var(--text);
+      width:100%;
+    }
+    .slot-btn:hover { border-color:var(--blue); background:#E3F2FD; }
+    .slot-btn.selected { border-color:var(--blue); background:var(--blue); color:white; }
+    .slot-btn.busy { background:#F5F5F5; color:#BDBDBD; cursor:not-allowed; border-style:dashed; }
+
+    /* FORM */
+    .form-control { border:1.5px solid #DDE3EE; border-radius:10px; padding:12px 16px; font-size:0.92rem; }
+    .form-control:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(21,101,192,0.1); }
+    .form-label { font-weight:500; font-size:0.88rem; color:var(--text); margin-bottom:6px; }
+
+    /* BTN */
+    .btn-primary-custom {
+      background:linear-gradient(135deg,#1565C0,#1976D2); color:white;
+      border:none; padding:13px 28px; border-radius:10px;
+      font-weight:700; font-size:0.95rem; font-family:'Syne',sans-serif;
+      transition:all 0.3s; cursor:pointer;
+    }
+    .btn-primary-custom:hover { transform:translateY(-1px); box-shadow:0 8px 20px rgba(21,101,192,0.3); }
+
+    /* CONFIRM CARD */
+    .confirm-card { background:linear-gradient(135deg,#E3F2FD,#BBDEFB); border-radius:16px; padding:28px; }
+    .confirm-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(21,101,192,0.1); font-size:0.9rem; }
+    .confirm-row:last-child { border-bottom:none; }
+    .confirm-label { color:var(--gray-text); font-weight:500; }
+    .confirm-value { font-weight:700; color:var(--text); }
+
+    .toast-container { position:fixed; top:16px; right:16px; z-index:200; }
+    .notif-toast { background:white; border-left:4px solid var(--blue); border-radius:12px; padding:14px 18px; margin-bottom:10px; box-shadow:0 8px 24px rgba(0,0,0,0.12); display:flex; align-items:flex-start; gap:12px; animation:slideIn 0.4s ease; max-width:320px; }
+    @keyframes slideIn { from{transform:translateX(100px);opacity:0} to{transform:translateX(0);opacity:1} }
+    .notif-title { font-weight:700; font-size:0.88rem; }
+    .notif-body { font-size:0.8rem; color:var(--gray-text); }
+
+    @media(max-width:768px){ .sidebar{display:none;} .main-content{margin-left:0; padding:16px;} }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">Care<span>Pulse</span></div>
+  <nav class="sidebar-nav">
+    <a href="dashboard.html"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+    <a href="agendamento.html" class="active"><i class="bi bi-calendar-plus-fill"></i> Minhas Consultas</a>
+    <a href="notificacoes.html"><i class="bi bi-bell-fill"></i> Notificações <span class="badge bg-danger ms-auto" style="font-size:0.65rem;">3</span></a>
+    <a href="#"><i class="bi bi-trophy-fill"></i> Recompensas</a>
+    <a href="#"><i class="bi bi-bar-chart-line-fill"></i> Histórico</a>
+    <a href="#"><i class="bi bi-gear-fill"></i> Configurações</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="d-flex align-items-center gap-2">
+      <div class="sidebar-avatar">FH</div>
+      <div><div style="font-weight:600;color:white;font-size:0.88rem;">Felipe Henrique</div><div style="font-size:0.75rem;">Plano Premium</div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="toast-container" id="toastArea"></div>
+
+<main class="main-content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="page-title">Agendar <span>Consulta</span></h1>
+      <p class="text-muted mt-1" style="font-size:0.88rem;">Escolha especialidade, médico e horário em poucos cliques.</p>
+    </div>
+    <a href="dashboard.html" class="btn btn-sm btn-outline-secondary rounded-pill px-3"><i class="bi bi-arrow-left me-1"></i>Voltar</a>
+  </div>
+
+  <!-- STEP BAR -->
+  <div class="step-bar" id="stepBar">
+    <div class="step-item active" id="step1">
+      <div class="step-circle">1</div>
+      <div class="step-label">Especialidade</div>
+    </div>
+    <div class="step-item" id="step2">
+      <div class="step-circle">2</div>
+      <div class="step-label">Médico</div>
+    </div>
+    <div class="step-item" id="step3">
+      <div class="step-circle">3</div>
+      <div class="step-label">Data & Horário</div>
+    </div>
+    <div class="step-item" id="step4">
+      <div class="step-circle">4</div>
+      <div class="step-label">Confirmar</div>
+    </div>
+  </div>
+
+  <!-- STEP 1: ESPECIALIDADE -->
+  <div id="panelStep1">
+    <div class="card-panel">
+      <div class="card-panel-header">
+        <span class="card-panel-title">🔬 Escolha a Especialidade</span>
+      </div>
+      <div class="card-body-pad">
+        <div class="row g-3" id="specGrid">
+          <!-- Specialties injected by JS -->
+        </div>
+      </div>
+    </div>
+    <div class="text-end">
+      <button class="btn-primary-custom" onclick="goStep(2)">Próximo <i class="bi bi-arrow-right ms-1"></i></button>
+    </div>
+  </div>
+
+  <!-- STEP 2: MÉDICO -->
+  <div id="panelStep2" style="display:none;">
+    <div class="card-panel">
+      <div class="card-panel-header">
+        <span class="card-panel-title">👨‍⚕️ Escolha o Médico</span>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="goStep(1)"><i class="bi bi-arrow-left me-1"></i>Voltar</button>
+      </div>
+      <div class="card-body-pad">
+        <div class="row g-3" id="docGrid"></div>
+      </div>
+    </div>
+    <div class="text-end">
+      <button class="btn-primary-custom" onclick="goStep(3)">Próximo <i class="bi bi-arrow-right ms-1"></i></button>
+    </div>
+  </div>
+
+  <!-- STEP 3: DATA & HORÁRIO -->
+  <div id="panelStep3" style="display:none;">
+    <div class="row g-3">
+      <div class="col-md-5">
+        <div class="card-panel h-100">
+          <div class="card-panel-header"><span class="card-panel-title">📅 Escolha a Data</span></div>
+          <div class="card-body-pad">
+            <input type="date" class="form-control mb-3" id="dataConsulta" min="2025-05-20"/>
+            <div class="alert" style="background:#FFF8E1;border:none;border-radius:10px;color:#F57F17;font-size:0.82rem;">
+              <i class="bi bi-exclamation-triangle-fill me-1"></i>Sextas após 17h têm maior risco de no-show devido ao trânsito. Considere outro horário.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-7">
+        <div class="card-panel h-100">
+          <div class="card-panel-header"><span class="card-panel-title">⏰ Horários Disponíveis</span></div>
+          <div class="card-body-pad">
+            <div class="row g-2" id="slotGrid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex justify-content-between mt-3">
+      <button class="btn btn-outline-secondary rounded-pill px-4" onclick="goStep(2)"><i class="bi bi-arrow-left me-1"></i>Voltar</button>
+      <button class="btn-primary-custom" onclick="goStep(4)">Revisar <i class="bi bi-arrow-right ms-1"></i></button>
+    </div>
+  </div>
+
+  <!-- STEP 4: CONFIRMAR -->
+  <div id="panelStep4" style="display:none;">
+    <div class="card-panel">
+      <div class="card-panel-header">
+        <span class="card-panel-title">✅ Confirmar Agendamento</span>
+        <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="goStep(3)"><i class="bi bi-arrow-left me-1"></i>Voltar</button>
+      </div>
+      <div class="card-body-pad">
+        <div class="confirm-card mb-4">
+          <div class="confirm-row"><span class="confirm-label">Especialidade</span><span class="confirm-value" id="confSpec">—</span></div>
+          <div class="confirm-row"><span class="confirm-label">Médico</span><span class="confirm-value" id="confDoc">—</span></div>
+          <div class="confirm-row"><span class="confirm-label">Data</span><span class="confirm-value" id="confDate">—</span></div>
+          <div class="confirm-row"><span class="confirm-label">Horário</span><span class="confirm-value" id="confTime">—</span></div>
+          <div class="confirm-row"><span class="confirm-label">Clínica</span><span class="confirm-value">Itaim Bibi – R. Funchal, 160</span></div>
+          <div class="confirm-row"><span class="confirm-label">Risco de No-Show</span><span class="confirm-value" id="confRisk">Calculando…</span></div>
+        </div>
+        <div class="alert" style="background:#E8F5E9;border:none;border-radius:12px;color:#2E7D32;font-size:0.88rem;">
+          <i class="bi bi-star-fill me-2"></i><strong>+50 pts</strong> serão adicionados ao confirmar o agendamento. Compareça e ganhe mais <strong>+100 pts</strong>!
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Observações (opcional)</label>
+          <textarea class="form-control" rows="2" placeholder="Alguma informação adicional para o médico?"></textarea>
+        </div>
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="notifCheck" checked/>
+          <label class="form-check-label" style="font-size:0.9rem;" for="notifCheck">Quero receber lembretes por WhatsApp e e-mail</label>
+        </div>
+        <button class="btn-primary-custom w-100" onclick="confirmarAgendamento()">
+          <i class="bi bi-calendar-check-fill me-2"></i>Confirmar Agendamento
+        </button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+const specs = [
+  {icon:'❤️', name:'Cardiologia', sub:'Coração e circulação'},
+  {icon:'🦷', name:'Odontologia', sub:'Saúde bucal'},
+  {icon:'🧠', name:'Neurologia', sub:'Sistema nervoso'},
+  {icon:'🦴', name:'Ortopedia', sub:'Ossos e articulações'},
+  {icon:'👁️', name:'Oftalmologia', sub:'Saúde visual'},
+  {icon:'🩺', name:'Clínico Geral', sub:'Atendimento geral'},
+  {icon:'🌿', name:'Dermatologia', sub:'Pele e cabelos'},
+  {icon:'🤰', name:'Ginecologia', sub:'Saúde feminina'},
+];
+const docs = [
+  {init:'CA', name:'Dr. Carlos Almeida', rating:'4.9', reviews:'127', avail:'Disponível hoje', clinic:'Itaim Bibi'},
+  {init:'MS', name:'Dra. Marina Santos', rating:'4.8', reviews:'98', avail:'Disponível amanhã', clinic:'Vila Olímpia'},
+  {init:'RP', name:'Dr. Ricardo Pinto', rating:'4.7', reviews:'213', avail:'Disponível em 2 dias', clinic:'Moema'},
+];
+const slots = [
+  {t:'08:00',busy:false},{t:'08:30',busy:true},{t:'09:00',busy:false},
+  {t:'09:30',busy:false},{t:'10:00',busy:true},{t:'10:30',busy:false},
+  {t:'11:00',busy:false},{t:'14:00',busy:false},{t:'14:30',busy:true},
+  {t:'15:00',busy:false},{t:'16:00',busy:false},{t:'17:00',busy:false},
+];
+
+let sel = {spec:null, doc:null, date:null, time:null};
+let currentStep = 1;
+
+// BUILD SPEC GRID
+const sg = document.getElementById('specGrid');
+specs.forEach((s,i) => {
+  const col = document.createElement('div'); col.className='col-6 col-md-3';
+  col.innerHTML=`<button class="spec-btn" onclick="selectSpec(this,'${s.name}')"><span class="spec-icon">${s.icon}</span><div class="spec-name">${s.name}</div><div class="spec-sub">${s.sub}</div></button>`;
+  sg.appendChild(col);
+});
+
+// BUILD DOC GRID
+function buildDocs() {
+  const dg = document.getElementById('docGrid');
+  dg.innerHTML='';
+  docs.forEach(d => {
+    const col = document.createElement('div'); col.className='col-md-4';
+    col.innerHTML=`<div class="doc-card" onclick="selectDoc(this,'${d.name}')">
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="doc-big-avatar">${d.init}</div>
+        <div><div style="font-weight:700;font-size:0.95rem;">${d.name}</div>
+        <div class="star-rating">★★★★★ <span style="color:var(--gray-text);font-weight:400;">${d.rating} (${d.reviews} avaliações)</span></div></div>
+      </div>
+      <div class="d-flex justify-content-between align-items-center">
+        <span class="avail-chip">${d.avail}</span>
+        <span style="font-size:0.8rem;color:var(--gray-text);">📍 ${d.clinic}</span>
+      </div>
+    </div>`;
+    dg.appendChild(col);
+  });
+}
+
+// BUILD SLOTS
+function buildSlots() {
+  const sg2 = document.getElementById('slotGrid'); sg2.innerHTML='';
+  slots.forEach(s => {
+    const col=document.createElement('div'); col.className='col-4 col-md-3';
+    col.innerHTML=`<button class="slot-btn ${s.busy?'busy':''}" ${s.busy?'disabled':''} onclick="selectSlot(this,'${s.t}')">${s.t}${s.busy?' — Ocupado':''}</button>`;
+    sg2.appendChild(col);
+  });
+}
+buildSlots();
+
+function selectSpec(btn, name) {
+  document.querySelectorAll('.spec-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected'); sel.spec=name;
+}
+function selectDoc(card, name) {
+  document.querySelectorAll('.doc-card').forEach(c=>c.classList.remove('selected'));
+  card.classList.add('selected'); sel.doc=name;
+}
+function selectSlot(btn, time) {
+  document.querySelectorAll('.slot-btn:not(.busy)').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected'); sel.time=time;
+}
+
+function goStep(n) {
+  if(n===2 && !sel.spec){ alert('Selecione uma especialidade!'); return; }
+  if(n===3 && !sel.doc){ alert('Selecione um médico!'); return; }
+  if(n===4 && !sel.time){ alert('Selecione um horário!'); return; }
+  if(n===2) buildDocs();
+
+  currentStep=n;
+  [1,2,3,4].forEach(i => {
+    document.getElementById('panelStep'+i).style.display = i===n?'block':'none';
+    const s=document.getElementById('step'+i);
+    s.className='step-item'+(i===n?' active':i<n?' done':'');
+    if(i<n) document.querySelector('#step'+i+' .step-circle').innerHTML='<i class="bi bi-check-lg"></i>';
+    else document.querySelector('#step'+i+' .step-circle').textContent=i;
+  });
+
+  if(n===4) fillConfirm();
+}
+
+function fillConfirm() {
+  sel.date = document.getElementById('dataConsulta').value || '21/05/2025';
+  document.getElementById('confSpec').textContent = sel.spec||'—';
+  document.getElementById('confDoc').textContent = sel.doc||'—';
+  document.getElementById('confDate').textContent = sel.date;
+  document.getElementById('confTime').textContent = sel.time||'—';
+  const hour = parseInt((sel.time||'09:00').split(':')[0]);
+  let risk='<span style="background:#E8F5E9;color:#2E7D32;border-radius:20px;padding:3px 12px;font-size:0.8rem;font-weight:600;">Baixo</span>';
+  if(hour>=17) risk='<span style="background:#FFF8E1;color:#F57F17;border-radius:20px;padding:3px 12px;font-size:0.8rem;font-weight:600;">Médio</span>';
+  document.getElementById('confRisk').innerHTML=risk;
+}
+
+function confirmarAgendamento() {
+  showToast('✅','Consulta agendada!',`${sel.spec} com ${sel.doc||'médico'} em ${sel.date} às ${sel.time}. +50 pts adicionados!`);
+  setTimeout(()=>window.location.href='dashboard.html', 2000);
+}
+
+function showToast(icon,title,body){
+  const area=document.getElementById('toastArea');
+  const t=document.createElement('div'); t.className='notif-toast';
+  t.innerHTML=`<div style="font-size:1.4rem;">${icon}</div><div><div class="notif-title">${title}</div><div class="notif-body">${body}</div></div>`;
+  area.appendChild(t); setTimeout(()=>t.remove(),5000);
+}
+
+// Init date
+document.getElementById('dataConsulta').value = '2025-05-21';
+</script>
+</body>
+</html>
